@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Garment Production Tracking System</title>
+    <script src="https://unpkg.com/qrcode-generator@1.4.4/qrcode.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .priority-high { background-color: #FEE2E2; }
+        .priority-medium { background-color: #FEF3C7; }
+        .priority-low { background-color: #ECFDF5; }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <nav class="bg-blue-600 text-white p-4">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-xl font-bold">Garment Track</h1>
+            <div class="flex gap-4">
+                <button onclick="changeView('dashboard')" class="px-3 py-1 rounded hover:bg-blue-700">Dashboard</button>
+                <button onclick="changeView('newOrder')" class="px-3 py-1 rounded hover:bg-blue-700">New Order</button>
+                <button onclick="changeView('scanner')" class="px-3 py-1 rounded hover:bg-blue-700">Scanner</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- New Order Form -->
+    <div id="newOrder" class="tab-content container mx-auto p-4 max-w-2xl">
+        <h2 class="text-2xl font-bold mb-6">New Order Registration</h2>
+        <form id="orderForm" class="space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Order Number</label>
+                    <input type="text" id="orderNumber" readonly class="mt-1 block w-full rounded-md border-gray-300 shadow-sm bg-gray-100" />
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Store/Retailer</label>
+                    <select class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                        <option>Store A</option>
+                        <option>Store B</option>
+                        <option>Store C</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Delivery Date</label>
+                    <input type="date" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" />
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Garment Type</label>
+                    <select class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                        <option>Shirt</option>
+                        <option>Pants</option>
+                        <option>Dress</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Cutting Status</label>
+                    <select class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                        <option>Pre-cut at store</option>
+                        <option>Needs cutting</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="mt-4">
+                <h3 class="text-lg font-medium mb-2">Customer Measurements</h3>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Chest</label>
+                        <input type="number" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" />
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Waist</label>
+                        <input type="number" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" />
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Hip</label>
+                        <input type="number" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" />
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Length</label>
+                        <input type="number" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <h3 class="text-lg font-medium mb-2">Fabric Details</h3>
+                <textarea class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" rows="3"></textarea>
+            </div>
+
+            <div class="flex justify-end">
+                <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
+                    Generate Order & QR Code
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- QR Scanner -->
+    <div id="scanner" class="tab-content container mx-auto p-4 max-w-2xl">
+        <h2 class="text-2xl font-bold mb-6">Scan QR Code</h2>
+        <div class="bg-white p-6 rounded-lg shadow-sm">
+            <div class="aspect-video bg-gray-100 flex items-center justify-center mb-4">
+                <i class="bi bi-camera text-6xl text-gray-400"></i>
+            </div>
+            <div class="space-y-4">
+                <button class="w-full bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
+                    Start Scanner
+                </button>
+                <div class="text-center text-gray-500">or</div>
+                <input type="text" placeholder="Enter Order Number" class="w-full rounded-md border-gray-300 shadow-sm" />
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard -->
+    <div id="dashboard" class="tab-content active container mx-auto p-4">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <div class="bg-white p-4 rounded-lg shadow-sm">
+                <h3 class="text-lg font-medium mb-2">Active Orders</h3>
+                <div class="text-3xl font-bold text-blue-600">24</div>
+            </div>
+            <div class="bg-white p-4 rounded-lg shadow-sm">
+                <h3 class="text-lg font-medium mb-2">Today's Deliveries</h3>
+                <div class="text-3xl font-bold text-green-600">8</div>
+            </div>
+            <div class="bg-white p-4 rounded-lg shadow-sm">
+                <h3 class="text-lg font-medium mb-2">Delayed Orders</h3>
+                <div class="text-3xl font-bold text-red-600">3</div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-sm p-4">
+            <h3 class="text-lg font-medium mb-4">Order Queue</h3>
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead>
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order #</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Priority</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        <!-- Sample rows -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Tab switching
+        function changeView(tabId) {
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.getElementById(tabId).classList.add('active');
+        }
+
+        // Generate unique order number
+        document.addEventListener('DOMContentLoaded', function() {
+            const orderNumber = 'ORD' + Date.now().toString().slice(-6);
+            document.getElementById('orderNumber').value = orderNumber;
+        });
+
+        // Sample data for the table
+        const orders = [
+            { id: 'ORD123456', status: 'Cutting', type: 'Shirt', priority: 'High' },
+            { id: 'ORD123457', status: 'Stitching', type: 'Pants', priority: 'Medium' },
+            { id: 'ORD123458', status: 'Quality Check', type: 'Dress', priority: 'Low' }
+        ];
+
+        // Populate table
+        const tbody = document.querySelector('tbody');
+        orders.forEach(order => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td class="px-6 py-4 whitespace-nowrap">${order.id}</td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="px-2 py-1 text-sm rounded-full bg-blue-100 text-blue-800">${order.status}</span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">${order.type}</td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="px-2 py-1 text-sm rounded-full ${order.priority === 'High' ? 'priority-high' : order.priority === 'Medium' ? 'priority-medium' : 'priority-low'}">
+                        ${order.priority}
+                    </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <button class="text-blue-600 hover:text-blue-800">View Details</button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+
+        // Form submission
+        document.getElementById('orderForm')?.addEventListener('submit', function(e) {
+            e.preventDefault();
+            // Handle form submission and QR code generation
+            alert('Order created successfully!');
+        });
+    </script>
+<script>document.body.addEventListener('wheel', e => { if (!e.ctrlKey) return; e.preventDefault(); return }, { passive: false })</script>
+	</body>
+</html>
